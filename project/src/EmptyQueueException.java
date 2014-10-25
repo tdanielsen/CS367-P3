@@ -1,13 +1,5 @@
-
-public class EmptyQueueException extends Exception 
-{
-	public EmptyQueueException()
-	{
-		
-	}
-	
-	public EmptyQueueException(String message)
-	{
-		super(message);
-	}
-}
+/**
+ * Thrown when trying to dequeue an item from an empty queue.
+ */
+@SuppressWarnings("serial")
+public class EmptyQueueException extends Exception {}

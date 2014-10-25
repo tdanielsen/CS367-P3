@@ -1,12 +1,5 @@
-
-public class FullStackException extends Exception 
-{
-	public FullStackException()
-	{
-		
-	}
-	public FullStackException(String message)
-	{
-		super(message);
-	}
-}
+/**
+ * Thrown when trying to push an item onto a full stack.
+ */
+@SuppressWarnings("serial")
+public class FullStackException extends Exception {}
