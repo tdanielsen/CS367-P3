@@ -9,12 +9,12 @@ import java.util.List;
 public class TrainSimulator 
 {
 
-	public static void main(String[] args) throws NumberFormatException, IOException, FullPlatformException, EmptyPlatformException 
+	public static void main(String[] args) throws NumberFormatException, IOException, FullPlatformException, EmptyPlatformException, FullQueueException 
 	{ 
 		if (args.length < 3)
 			throw new IllegalArgumentException("You need to input 3 arguments in");
 		ArrayList<Station> allStations = new ArrayList<Station>();
-		ArrayList<Train> allTrains = new ArrayList<Train>();
+		SimpleQueue trainsInTransit = new SimpleQueue();
 		List<List<Integer>> allTrainsETD = new ArrayList<List<Integer>>();
 		int worldTime = 0;
 		for (int i = 1; i < args.length; i++)
@@ -47,6 +47,7 @@ public class TrainSimulator
 				}
 			else
 			{
+				
 				List<Integer> individualTrainETD = new ArrayList<Integer>();
 				try
 				{
@@ -54,14 +55,14 @@ public class TrainSimulator
 					BufferedReader in
 					   = new BufferedReader(new FileReader(fileName));
 					String line = in.readLine();
-	
+					trainsInTransit = new SimpleQueue(Integer.parseInt(line));
+
 							while ((line = in.readLine()) != null)
 							{
 								int cutPoint = line.indexOf(",");
 								int trainID = Integer.parseInt
 										(line.substring(0, cutPoint));
 								allStations.get(0).getPlatform().put(new Train(trainID));
-								allTrains.add(new Train(trainID));
 								while (line.indexOf(",", cutPoint) != -1)
 								{
 									int nextCutPoint = line.indexOf(",", cutPoint);
@@ -85,23 +86,49 @@ public class TrainSimulator
 			
 			if (Integer.parseInt(args[1]) == 0)
 			{
-				for (int j = 0; j < allStations.size(); j++)
-				{
-					if (allStations.get(j).getPlatform().isEmpty())
-						worldTime++;
-					while (allStations.get(j).getPlatform().isEmpty() != true)
+				while (!areTrainsDone(allStations))
+					for (int j = 0; j < allStations.size(); j++)
 					{
-						int trainIDNumber = allStations.get(j).getPlatform().check().getId();
-						int stationIDNumber = allStations.get(j).getId();
-						allStations.get(j).getPlatform().get();
-						worldTime++;
-						System.out.println(worldTime + ":	Train " + trainIDNumber + 
-								" has exited from station " + stationIDNumber + ".");
+						if (allStations.get(j).getPlatform().isEmpty())
+							worldTime++;
+						while (allStations.get(j).getPlatform().isEmpty() != true)
+						{
+							worldTime++;
+							debarkStation(allStations, j, worldTime, trainsInTransit);
+							
+						}
 					}
-				}
 			}
 		}
 
+	}
+	public static void debarkStation(ArrayList<Station> stations, int station, int time, SimpleQueue travelingTrains) throws EmptyPlatformException, FullQueueException
+	{
+		Train departingTrain = stations.get(station).getPlatform().check();
+		int trainIDNumber = departingTrain.getId();
+		departingTrain.getATD().add(time);
+		travelingTrains.enqueue(departingTrain);
+		int stationIDNumber = stations.get(station).getId();
+		stations.get(station).getPlatform().get();
+		System.out.println(time + ":	Train " + trainIDNumber + 
+				" has exited from station " + stationIDNumber + ".");
+	}
+	public static boolean areTrainsDone(ArrayList<Station> stations)
+	{
+		if (stations.get(stations.size()).getPlatform().isFull())
+			return true;
+		return false;
+	}
+	public static boolean areTrainsMoving(ArrayList<Station> stations)
+	{
+		for (int i = 0; i < stations.size(); i++)
+		{
+			if (!stations.get(i).getPlatform().isEmpty())
+			{
+				return false;
+			}
+		}
+		return true;
 	}
 
 }
