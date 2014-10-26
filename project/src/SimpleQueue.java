@@ -28,7 +28,14 @@ public class SimpleQueue<E> implements QueueADT<E>
 			front = 0;
 		items[rear] = item;
 		numItems++;
-		rear++;
+		if (rear >= capacity - 1)
+		{
+			rear = 0;
+		}
+		else
+		{
+			rear++;
+		}
 			
 		
 	}

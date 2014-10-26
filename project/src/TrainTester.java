@@ -20,9 +20,10 @@ public class TrainTester
 		queue.enqueue("Cat");
 		queue.enqueue("Matt");
 		queue.enqueue("Gat");
-		queue.enqueue("Bad Dat");
 		System.out.println(queue.peek());
 		queue.dequeue();
+		queue.dequeue();
+		queue.enqueue("Hat");
 		System.out.println(queue.peek());
 	}
 
