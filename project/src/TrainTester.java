@@ -3,7 +3,7 @@ public class TrainTester
 {
 	public static void main(String[] args) throws FullStackException, FullQueueException, EmptyQueueException
 	{
-		SimpleStack stack = new SimpleStack(10);
+		SimpleStack<String> stack = new SimpleStack<String>(10);
 		stack.push("Hat");
 		stack.push("Cat");
 		stack.push("Matt");
@@ -15,11 +15,12 @@ public class TrainTester
 		System.out.println(stack.peek());
 		stack.pop();
 		System.out.println(stack.peek());
-		SimpleQueue queue = new SimpleQueue(4);
+		SimpleQueue<String> queue = new SimpleQueue<String>(4);
 		queue.enqueue("Hat");
 		queue.enqueue("Cat");
 		queue.enqueue("Matt");
 		queue.enqueue("Gat");
+		queue.enqueue("Bad Dat");
 		System.out.println(queue.peek());
 		queue.dequeue();
 		System.out.println(queue.peek());

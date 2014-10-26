@@ -11,6 +11,7 @@ public class SimpleStack<E> implements StackADT<E>
 	{
 		
 	}
+	@SuppressWarnings("unchecked")
 	public SimpleStack(int capacity)
 	{
 		numItems = 0;

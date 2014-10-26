@@ -3,15 +3,15 @@ import java.util.EmptyStackException;
 
 public class Platform implements PlatformADT
 {
-	private SimpleStack stack;
+	private SimpleStack<Train> stack;
 	public Platform()
 	{
-		stack = new SimpleStack();
+		stack = new SimpleStack<Train>();
 	}
 	
 	public Platform(int capacity)
 	{
-		stack = new SimpleStack(capacity);
+		stack = new SimpleStack<Train>(capacity);
 	}
 
 	public void put(Train item) throws FullPlatformException {

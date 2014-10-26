@@ -1,4 +1,4 @@
-import java.util.EmptyStackException;
+
 
 
 public class SimpleQueue<E> implements QueueADT<E> 
@@ -13,6 +13,7 @@ public class SimpleQueue<E> implements QueueADT<E>
 	{
 		
 	}
+	@SuppressWarnings("unchecked")
 	public SimpleQueue(int capacity)
 	{
 		numItems = 0;
@@ -61,5 +62,9 @@ public class SimpleQueue<E> implements QueueADT<E>
 		if (numItems == capacity)
 			return true;
 		return false;
+	}
+	public int size()
+	{
+		return capacity;
 	}
 }
