@@ -30,9 +30,9 @@ public class Platform implements PlatformADT
 	public Train get() throws EmptyPlatformException {
 		if (stack.isEmpty())
 			throw new EmptyPlatformException();
-		try {
-			return (Train) stack.pop();
-			
+		try 
+		{
+			return (Train) stack.pop();	
 		}
 		catch (EmptyStackException e) 
 		{
@@ -44,9 +44,9 @@ public class Platform implements PlatformADT
 	public Train check() throws EmptyPlatformException {
 		if (stack.isEmpty())
 			throw new EmptyPlatformException();
-		try {
+		try 
+		{
 			return (Train) stack.peek();
-			
 		}
 		catch (EmptyStackException e) 
 		{
