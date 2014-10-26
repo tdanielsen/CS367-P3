@@ -14,7 +14,7 @@ public class TrainSimulator
 		
 		if (args.length < 3)
 			throw new IllegalArgumentException("You need to input 3 arguments in");
-		SimpleQueue<Station> allStations = new SimpleQueue<Station>();
+		ArrayList<Station> allStations = new ArrayList<Station>();
 		SimpleQueue<Train> trainsInTransit = new SimpleQueue<Train>();
 		List<List<Integer>> allTrainsETD = new ArrayList<List<Integer>>();
 		SimpleStack<Train> orderingStack = new SimpleStack<Train>();
@@ -29,7 +29,6 @@ public class TrainSimulator
 					BufferedReader in
 					   = new BufferedReader(new FileReader(fileName));
 					String line = in.readLine();
-					allStations = new SimpleQueue<Station>(Integer.parseInt(line));
 	
 							while ((line = in.readLine()) != null)
 							{
@@ -38,7 +37,7 @@ public class TrainSimulator
 										(line.substring(0, cutPoint));
 								int stationCap = Integer.parseInt(line.substring(cutPoint + 1));
 								Station newStation = new Station(stationID, stationCap);
-								allStations.enqueue(newStation);
+								allStations.add(newStation);
 							}
 						
 					in.close();
@@ -59,7 +58,7 @@ public class TrainSimulator
 					   = new BufferedReader(new FileReader(fileName));
 					String line = in.readLine();
 					trainsInTransit = new SimpleQueue<Train>(Integer.parseInt(line));
-					System.out.println("Train track cap: " + trainsInTransit.size());
+					System.out.println(trainsInTransit.size());
 					orderingStack = new SimpleStack<Train>(Integer.parseInt(line));
 
 							while ((line = in.readLine()) != null)
@@ -70,7 +69,7 @@ public class TrainSimulator
 								orderingStack.push(new Train(trainID));
 								//System.out.println(orderingStack.peek().getId());
 								//allStations.get(0).getPlatform().put(new Train(trainID));
-								//System.out.println(allStations.peek().getPlatform().check().getId());
+								//System.out.println(allStations.get(0).getPlatform().check().getId());
 								String s = line.substring(cutPoint + 1);
 								//System.out.println(s);
 								while (s.indexOf(",") != -1)
@@ -84,7 +83,7 @@ public class TrainSimulator
 									//System.out.println(s);
 								}
 								int trainETD = Integer.parseInt(s);
-								System.out.println(trainETD);
+								//System.out.println(trainETD);
 								individualTrainETD.add(trainETD);
 								allTrainsETD.add(individualTrainETD);
 								
@@ -92,7 +91,7 @@ public class TrainSimulator
 							while (!orderingStack.isEmpty())
 							{
 								//System.out.println(orderingStack.pop().getId());
-								allStations.peek().getPlatform().put(orderingStack.pop());
+								allStations.get(0).getPlatform().put(orderingStack.pop());
 							}
 						
 					in.close();
@@ -105,29 +104,31 @@ public class TrainSimulator
 			}
 			
 		}
-		System.out.println(allStations.peek().getPlatform().isEmpty());
-		System.out.println(allStations.peek().getPlatform().check().getId());
+//		System.out.println(allStations.get(0).getPlatform().isEmpty());
+//		List<Station> copy = new ArrayList<Station>(allStations);
+//		for (int u = 0; u < copy.size(); u ++)
+//			System.out.println(copy.get(0).getPlatform().get().getId());
+//		System.out.println(allStations.get(0).getPlatform().isEmpty());
 		if (Integer.parseInt(args[0]) == 0)
 		{
 			while (!allTrainsAreDone(allStations))
 			{
-				System.out.println(worldTime);
 				worldTime++;
 				if (allTrainsAreMoving(allStations) == false)
 				{
-					//for (int j = 0; j < allStations.size(); j++)
+					for (int j = 0; j < allStations.size(); j++)
 					{
-						//System.out.println("j: " + j + "Limit: " + allStations.size());
+						System.out.println("j: " + j + "Limit: " + allStations.size());
 						System.out.println(worldTime);
 						System.out.println("Red was here");
 						//System.out.println(allStations.get(j).getPlatform().check().getId());
-						if (allStations.peek().getPlatform().isEmpty() == false)
+						if (allStations.get(j).getPlatform().isEmpty() == false)
 						{
 							debarkStation(allStations, j, worldTime, trainsInTransit);
 							System.out.println(trainsInTransit.peek().getId());
 						}
 						System.out.println(trainsInTransit.isEmpty());
-						System.out.println(allStations.peek().getPlatform().isEmpty());
+						System.out.println(allStations.get(j).getPlatform().isEmpty());
 					}
 				}
 				if (allTrainsAreMoving(allStations) != false)
@@ -145,7 +146,7 @@ public class TrainSimulator
 				{
 					int headingTowards = 
 							trainsInTransit.peek().getATD().size();
-					if (!allStations.peek().getPlatform()
+					if (!allStations.get(headingTowards).getPlatform()
 							.isFull())
 					{
 						worldTime++;
@@ -167,21 +168,21 @@ public class TrainSimulator
 		}
 
 	}
-	public static void debarkStation(SimpleQueue<Station> stations, int station,
+	public static void debarkStation(ArrayList<Station> stations, int station,
 			int time, SimpleQueue<Train> travelingTrains) 
-					throws EmptyPlatformException, FullQueueException, EmptyQueueException
+					throws EmptyPlatformException, FullQueueException
 	{
-		Train departingTrain = stations.peek().getPlatform().check();
+		Train departingTrain = stations.get(station).getPlatform().check();
 		int trainIDNumber = departingTrain.getId();
 		departingTrain.getATD().add(time);
 		travelingTrains.enqueue(departingTrain);
 		System.out.println("Train " + trainIDNumber + " added to track");
-		int stationIDNumber = stations.peek().getId();
-		stations.peek().getPlatform().get();
+		int stationIDNumber = stations.get(station).getId();
+		stations.get(station).getPlatform().get();
 		System.out.println(time + ":	Train " + trainIDNumber + 
 				" has exited from station " + stationIDNumber + ".");
 	}
-	public static void arriveAtStation(SimpleQueue<Station> stations,int station, 
+	public static void arriveAtStation(ArrayList<Station> stations,int station, 
 			int train, int time, SimpleQueue<Train> travelingTrains) 
 					throws FullQueueException, EmptyQueueException, 
 					FullPlatformException
@@ -189,24 +190,27 @@ public class TrainSimulator
 		Train arrivingTrain = (Train) travelingTrains.dequeue();
 		System.out.println(arrivingTrain.getId());
 		int trainIDNumber = arrivingTrain.getId();
-		stations.peek().getPlatform().put(arrivingTrain);
+		stations.get(station).getPlatform().put(arrivingTrain);
 		arrivingTrain.getATA().add(time);
-		int stationIDNumber = stations.peek().getId();
+		int stationIDNumber = stations.get(station).getId();
 		System.out.println(time + ":	Train " + trainIDNumber + 
 				" has been parked at station " + stationIDNumber + ".");
 	}
-	public static boolean allTrainsAreDone(SimpleQueue<Station> stations)
+	public static boolean allTrainsAreDone(ArrayList<Station> stations)
 	{
-		if (stations.isFull())
+		if (stations.get(stations.size() - 1).getPlatform().isFull())
 			return true;
 		return false;
 	}
-	public static boolean allTrainsAreMoving(SimpleQueue<Station> stations)
+	public static boolean allTrainsAreMoving(ArrayList<Station> stations)
 	{
-			if (!stations.isEmpty())
+		for (int i = 0; i < stations.size(); i++)
+		{
+			if (!stations.get(i).getPlatform().isEmpty())
 			{
 				return false;
 			}
+		}
 		return true;
 	}
 

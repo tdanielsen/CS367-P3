@@ -63,4 +63,8 @@ public class SimpleQueue<E> implements QueueADT<E>
 			return true;
 		return false;
 	}
+	public int size()
+	{
+		return capacity;
+	}
 }
