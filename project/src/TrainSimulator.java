@@ -49,7 +49,6 @@ public class TrainSimulator
 				}
 			else
 			{
-				int whichTrain = 0;
 				List<Integer> individualTrainETD = new ArrayList<Integer>();
 				try
 				{
@@ -85,6 +84,7 @@ public class TrainSimulator
 								}
 								int trainETD = Integer.parseInt(s);
 								//System.out.println(trainETD);
+								orderingStack.peek().getETD().add(trainETD);
 								individualTrainETD.add(trainETD);
 								allTrainsETD.add(individualTrainETD);
 								
@@ -123,15 +123,21 @@ public class TrainSimulator
 				if (allTrainsAreMoving(allStations) == false)
 				{
 
-						System.out.println("j: " + whichStation + "Limit: " + allStations.size());
+						System.out.println("j: " + whichStation + " Limit: " + allStations.size());
 						System.out.println(worldTime);
 						System.out.println("Red was here");
+						System.out.println(allStations.get(whichStation).getPlatform().isEmpty());
 						//System.out.println(allStations.get(j).getPlatform().check().getId());
 						if (!allStations.get(whichStation).getPlatform().isEmpty())
 						{	
-							if (getTrain(allStations, whichStation).getETD().get(whichStation) <= worldTime)
+							System.out.println("Train location: " + trainLocation(allStations, whichStation));
+
+							if (getTrain(allStations,whichStation).getATA().size() > 0)
 							{
-								if (getTrain(allStations,whichStation).getATA().size() > 0)
+								System.out.println(getTrain(allStations, whichStation).getETD().size());
+								if (getTrain(allStations, whichStation)
+										.getETD().get(trainLocation
+												(allStations, whichStation)-1) <= worldTime)
 								{
 									System.out.println(getTrain(allStations, whichStation).getATA().size());
 									System.out.println(whichStation);
@@ -139,12 +145,14 @@ public class TrainSimulator
 									debarkStation(allStations, whichStation, worldTime, trainsInTransit);
 									System.out.println(trainsInTransit.peek().getId());
 								}
+
 							}
 							else
 							{
 								debarkStation(allStations, whichStation, worldTime, trainsInTransit);
 								System.out.println(trainsInTransit.peek().getId());
 							}
+
 						}
 						
 						System.out.println(whichStation);
@@ -152,16 +160,17 @@ public class TrainSimulator
 						System.out.println(allStations.get(whichStation).getPlatform().isEmpty());
 				}
 				System.out.println(whichStation);
-				System.out.println(trainsInTransit.peek().getATD().size());
+				System.out.println(trainLocation(allStations, whichStation));
 //				System.out.println(trainsInTransit.peek().getATD().get(whichStation));
 				if (whichStation != 0)
 				{
-					if (trainsInTransit.peek().getATD().size() > 0)
+//					if (trainLocation(allStations, whichStation) < whichStation)
 					{
 						System.out.println("*" + trainsInTransit.peek().getATD().get(0));
 						System.out.println(whichStation);
 						System.out.println(trainsInTransit.peek().getATD().size());
-						if (trainsInTransit.peek().getATD().get(whichStation - 1) + 10 == worldTime)
+						System.out.println(trainsInTransit.peek().getATD().get(0));
+						if (trainsInTransit.peek().getATD().get(whichStation-1) + 10 == worldTime)
 						{
 							arriveAtStation(allStations, whichStation + 1,
 									whichStation, worldTime, trainsInTransit);
@@ -206,7 +215,6 @@ public class TrainSimulator
 					}
 				}
 
-				
 			}
 		}
 
@@ -218,7 +226,7 @@ public class TrainSimulator
 		Train departingTrain = stations.get(station).getPlatform().check();
 		int trainIDNumber = departingTrain.getId();
 		departingTrain.getATD().add(time);
-		
+		departingTrain.getETD().remove(station);
 		travelingTrains.enqueue(departingTrain);
 		System.out.println("Train " + trainIDNumber + " added to track");
 		int stationIDNumber = stations.get(station).getId();
@@ -267,6 +275,10 @@ public class TrainSimulator
 			throws EmptyPlatformException
 	{
 		return stations.get(whichStation).getPlatform().check();
+	}
+	public static int trainLocation(ArrayList<Station> stations, int whichStation) throws EmptyPlatformException
+	{
+		return Math.abs(whichStation - getTrain(stations, whichStation).getETD().size());
 	}
 
 }
