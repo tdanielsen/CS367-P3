@@ -114,7 +114,7 @@ public class TrainSimulator
 //		System.out.println(allStations.get(0).getPlatform().isEmpty());
 		if (Integer.parseInt(args[0]) == 0)
 		{
-			int whichStation = allStations.size();
+			int whichStation = 0;
 			System.out.println(allStations.get(1).getId());
 			while (!allTrainsAreDone(allStations))
 			{
@@ -126,9 +126,9 @@ public class TrainSimulator
 						System.out.println("j: " + whichStation + " Limit: " + allStations.size());
 						System.out.println(worldTime);
 						System.out.println("Red was here");
-//						System.out.println(allStations.get(whichStation).getPlatform().isEmpty());
+						System.out.println(allStations.get(whichStation).getPlatform().isEmpty());
 						//System.out.println(allStations.get(j).getPlatform().check().getId());
-						if (!allStations.get(trainLocation(allStations, whichStation) - 1).getPlatform().isEmpty())
+						if (!allStations.get(whichStation).getPlatform().isEmpty())
 						{	
 							System.out.println("Train location: " + trainLocation(allStations, whichStation));
 
@@ -142,14 +142,14 @@ public class TrainSimulator
 									System.out.println(getTrain(allStations, whichStation).getATA().size());
 									System.out.println(whichStation);
 									System.out.println(trainsInTransit.peek().getId());
-									debarkStation(allStations, trainLocation(allStations, whichStation) - 1, worldTime, trainsInTransit);
+									debarkStation(allStations, whichStation, worldTime, trainsInTransit);
 									System.out.println(trainsInTransit.peek().getId());
 								}
 
 							}
 							else
 							{
-								debarkStation(allStations, trainLocation(allStations, whichStation) - 1, worldTime, trainsInTransit);
+								debarkStation(allStations, whichStation, worldTime, trainsInTransit);
 								System.out.println(trainsInTransit.peek().getId());
 							}
 
@@ -162,7 +162,7 @@ public class TrainSimulator
 				System.out.println(whichStation);
 				System.out.println(trainLocation(allStations, whichStation));
 //				System.out.println(trainsInTransit.peek().getATD().get(whichStation));
-				if (trainLocation(allStations, whichStation) - 1 != 0)
+				if (whichStation != 0)
 				{
 //					if (trainLocation(allStations, whichStation) < whichStation)
 					{
@@ -170,9 +170,9 @@ public class TrainSimulator
 						System.out.println(whichStation);
 						System.out.println(trainsInTransit.peek().getATD().size());
 						System.out.println(trainsInTransit.peek().getATD().get(0));
-						if (trainsInTransit.peek().getATD().get(trainLocation(allStations, whichStation) -1) + 10 == worldTime)
+						if (trainsInTransit.peek().getATD().get(whichStation-1) + 10 == worldTime)
 						{
-							arriveAtStation(allStations, trainLocation(allStations, whichStation),
+							arriveAtStation(allStations, whichStation + 1,
 									whichStation, worldTime, trainsInTransit);
 							
 						}
@@ -189,12 +189,12 @@ public class TrainSimulator
 								headingTowards, worldTime, trainsInTransit);
 					}
 				}
-//				System.out.println("**" + whichStation);
-//				if (allStations.get(trainLocation(allStations, whichStation) - 1).getPlatform().isEmpty())
-//				{
-//					System.out.println("Moving on");
-//					whichStation++;
-//				}
+				System.out.println("**" + whichStation);
+				if (allStations.get(whichStation).getPlatform().isEmpty())
+				{
+					System.out.println("Moving on");
+					whichStation++;
+				}
 				while (trainsInTransit.isFull())
 				{
 					int headingTowards = 
