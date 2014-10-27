@@ -18,6 +18,7 @@ public class TrainSimulator
 		SimpleQueue<Train> trainsInTransit = new SimpleQueue<Train>();
 		List<List<Integer>> allTrainsETD = new ArrayList<List<Integer>>();
 		SimpleStack<Train> orderingStack = new SimpleStack<Train>();
+		ArrayList<Train> trainTracks = new ArrayList<Train>();
 		int worldTime = 0;
 		for (int i = 1; i < args.length; i++)
 		{
