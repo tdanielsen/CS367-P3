@@ -48,6 +48,11 @@ public class SimpleQueue<E> implements QueueADT<E>
 		items[front] = null;
 		numItems--;
 		front++;
+		if (isEmpty())
+		{
+			front = -1;
+			rear = 0;
+		}
 		return result;
 	}
 
@@ -70,8 +75,12 @@ public class SimpleQueue<E> implements QueueADT<E>
 			return true;
 		return false;
 	}
-	public int size()
+	public int getFront()
 	{
-		return capacity;
+		return front;
+	}
+	public int getRear()
+	{
+		return rear;
 	}
 }

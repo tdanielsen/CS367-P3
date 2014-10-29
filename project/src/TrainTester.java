@@ -15,15 +15,17 @@ public class TrainTester
 		System.out.println(stack.peek());
 		stack.pop();
 		System.out.println(stack.peek());
-		SimpleQueue<String> queue = new SimpleQueue<String>(4);
+		SimpleQueue<String> queue = new SimpleQueue<String>(3);
 		queue.enqueue("Hat");
 		queue.enqueue("Cat");
+		queue.dequeue();
+		queue.dequeue();
+		System.out.println(queue.peek());
 		queue.enqueue("Matt");
-		queue.enqueue("Gat");
 		System.out.println(queue.peek());
 		queue.dequeue();
 		queue.dequeue();
-		queue.enqueue("Hat");
+		queue.dequeue();
 		System.out.println(queue.peek());
 	}
 
