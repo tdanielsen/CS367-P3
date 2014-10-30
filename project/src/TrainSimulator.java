@@ -68,26 +68,19 @@ public class TrainSimulator
 								orderingStack.push(new Train(trainID));
 								trains.add(new Train(trainID));
 								String s = line.substring(cutPoint + 1);
-								System.out.println("Train ETDs: " + s);
-								System.out.println("Train ID: " + trainID);
 								while (s.indexOf(",") != -1)
 								{
 									cutPoint = s.indexOf(",");
 									int trainETD = Integer.parseInt(s.substring(0, cutPoint));
 									orderingStack.peek().getETD().add(trainETD);
 									s = s.substring(cutPoint + 1);
-									System.out.println("Train ETD: " + trainETD);
 								}
 								int trainETD = Integer.parseInt(s);
-								System.out.println("Train ETD: " + trainETD);
 								orderingStack.peek().getETD().add(trainETD);
 							}
 							
 							while (!orderingStack.isEmpty())
 							{
-//								System.out.println("Train ID: " + orderingStack.peek().getId());
-//								for (int i1 = 0; i1 < orderingStack.peek().getETD().size(); i1++)
-//								System.out.println(orderingStack.peek().getETD().get(i1));
 								allStations.get(0).getPlatform().put(orderingStack.pop());
 							}
 						
