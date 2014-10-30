@@ -3,7 +3,6 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.List;
 
 
 public class TrainSimulator 
@@ -12,10 +11,9 @@ public class TrainSimulator
 	public static void main(String[] args) throws NumberFormatException, IOException, FullPlatformException, EmptyPlatformException, FullQueueException, EmptyQueueException, FullStackException 
 	{ 
 		
-		if (args.length < 3)
-			throw new IllegalArgumentException("You need to input 3 arguments in");
+		if (args.length < 3 || args.length > 3)
+			throw new IllegalArgumentException("3 arguments required");
 		ArrayList<Station> allStations = new ArrayList<Station>();
-	//	SimpleQueue<Train> trainsInTransit = new SimpleQueue<Train>();
 		SimpleStack<Train> orderingStack = new SimpleStack<Train>();
 		ArrayList<SimpleQueue<Train>> trainTracks = new ArrayList<SimpleQueue<Train>>();
 		ArrayList<Train> trains = new ArrayList<Train>();
@@ -56,12 +54,10 @@ public class TrainSimulator
 					BufferedReader in
 					   = new BufferedReader(new FileReader(fileName));
 					String line = in.readLine();
-				//	trainsInTransit = new SimpleQueue<Train>(Integer.parseInt(line));
 					for (int z = 0; z < allStations.size() - 1; z++)
 					{
 						trainTracks.add(new SimpleQueue<Train>(Integer.parseInt(line)));
 					}
-					trains.add(new Train(Integer.parseInt(line)));
 					orderingStack = new SimpleStack<Train>(Integer.parseInt(line));
 					
 							while ((line = in.readLine()) != null)
@@ -70,32 +66,29 @@ public class TrainSimulator
 								int trainID = Integer.parseInt
 										(line.substring(0, cutPoint));
 								orderingStack.push(new Train(trainID));
-								//System.out.println(orderingStack.peek().getId());
-								//allStations.get(0).getPlatform().put(new Train(trainID));
-								//System.out.println(allStations.get(0).getPlatform().check().getId());
+								trains.add(new Train(trainID));
 								String s = line.substring(cutPoint + 1);
-								//System.out.println(s);
+								System.out.println("Train ETDs: " + s);
+								System.out.println("Train ID: " + trainID);
 								while (s.indexOf(",") != -1)
 								{
-									cutPoint = line.indexOf(",");
-									//System.out.println(cutPoint);
-									int trainETD = Integer.parseInt(line.substring(0, cutPoint));
-//									System.out.println(orderingStack.peek().getId());
+									cutPoint = s.indexOf(",");
+									int trainETD = Integer.parseInt(s.substring(0, cutPoint));
 									orderingStack.peek().getETD().add(trainETD);
 									s = s.substring(cutPoint + 1);
-									//System.out.println(s);
+									System.out.println("Train ETD: " + trainETD);
 								}
 								int trainETD = Integer.parseInt(s);
-								//System.out.println(trainETD);
+								System.out.println("Train ETD: " + trainETD);
 								orderingStack.peek().getETD().add(trainETD);
-								
 							}
+							
 							while (!orderingStack.isEmpty())
 							{
-								//System.out.println(orderingStack.pop().getId());
+//								System.out.println("Train ID: " + orderingStack.peek().getId());
+//								for (int i1 = 0; i1 < orderingStack.peek().getETD().size(); i1++)
+//								System.out.println(orderingStack.peek().getETD().get(i1));
 								allStations.get(0).getPlatform().put(orderingStack.pop());
-//								System.out.println(allStations.get(0).getPlatform().check().getId());
-//								System.out.println("ETD " + allStations.get(0).getPlatform().check().getETD().get(0));
 							}
 						
 					in.close();
@@ -106,27 +99,12 @@ public class TrainSimulator
 					System.out.println("File: " + fileName + " Not Found.");
 				}	
 			}
-			
 		}
-//		System.out.println(allStations.get(0).getPlatform().isEmpty());
-//		List<Station> copy = new ArrayList<Station>(allStations);
-//		for (int u = 0; u < copy.size(); u ++)
-//			System.out.println(copy.get(0).getPlatform().get().getId());
-//		System.out.println(allStations.get(0).getPlatform().isEmpty());
-//		System.out.println("Tracks: " + trainTracks.size());
-	
-//			int whichStation = 0;
-//			System.out.println(allStations.get(1).getId());
-//			System.out.println(trainTracks.get(0).isEmpty());
-//			System.out.println(trainTracks.get(1).isEmpty());
+
 		int n = Integer.parseInt(args[0]);
-		
 		while (!allTrainsAreDone(allStations))
 		{
-//				System.out.println(worldTime);
-//				System.out.println("Track 1 is empty: " + trainTracks.get(0).isEmpty());
-//				System.out.println("Track 2 is empty: " + trainTracks.get(1).isEmpty());
-			worldTime++;
+//			worldTime++;
 			for (int i = 0; i < allStations.size(); i++)
 			{
 				if (!allStations.get(i).getPlatform().isEmpty())
@@ -148,12 +126,12 @@ public class TrainSimulator
 							{
 								if (getTrain(allStations, i).getATA().get(i) + 1 <= worldTime)
 								{
-									debarkStation(allStations, i, worldTime, trainTracks, n);
+									debarkStation(allStations, i, worldTime, trainTracks, n, trains);
 								}
 							}
 							else
 							{
-								debarkStation(allStations, i, worldTime, trainTracks, n);
+								debarkStation(allStations, i, worldTime, trainTracks, n, trains);
 							}
 						}
 						else
@@ -162,10 +140,8 @@ public class TrainSimulator
 						}
 					}
 				}
-				//System.out.println(allStations.get(i).getPlatform().isEmpty());
 			}
 
-			//looks at the "train tracks"
 			for (int j = 0; j < trainTracks.size(); j++)
 			{
 				if (!trainTracks.get(j).isEmpty())
@@ -173,24 +149,17 @@ public class TrainSimulator
 					boolean done = false;
 					while (!done)
 					{
-						//System.out.println("J: " + j);	
 						if (allStations.get(j + 1).getPlatform().isFull()
 								|| trainTracks.get(j).isEmpty())
 						{
-						//	System.out.println("Done and done.");
 							break;
 						}
-//							System.out.println("J: " + j);	
-//							System.out.println("Front: " + trainTracks.get(j).getFront());
-//							System.out.println("Rear: " + trainTracks.get(j).getRear());
-						//System.out.println(trainTracks.get(1).peek().getId());
 						if (trainTracks.get(j).peek().getATD().size() > j)
 						{
-							//System.out.println(trainTracks.get(j).peek().getATD().get(j));
 							if (trainTracks.get(j).peek().getATD().get(j) + 10 <= worldTime)
 							{
 								arriveAtStation(allStations, j + 1,
-										j, worldTime, trainTracks, n);
+										j, worldTime, trainTracks, n, trains);
 							}
 							else
 							{
@@ -201,11 +170,10 @@ public class TrainSimulator
 						{
 							done = true;
 						}
-//							done = true;
 					}
 				}
 			}
-
+			worldTime++;
 		}
 		if (n == 1)
 		{
@@ -215,22 +183,44 @@ public class TrainSimulator
 				result = result + "[";
 				for(int j = 0; j < trains.get(i).getATD().size(); j++)
 				{
-					result = result + " " + trains.get(trains.size() - 1).getATD().get(j);
+					result = result + trains.get(i).getATD().get(j) + ", ";
 				}
-				result = result + "]";
+				result = result.substring(0, result.length()-2);
+				result = result + "]\n";
+			}
+			System.out.println(result);	
+		}
+		if (n == 2)
+		{
+			String result = "";
+			for(int i = 0; i < trains.size(); i++)
+			{
+				result = result + "[";
+				for(int j = 0; j < trains.get(i).getATA().size(); j++)
+				{
+					result = result + trains.get(i).getATA().get(j) + ", ";
+				}
+				result = result.substring(0, result.length()-2);
+				result = result + "]\n";
 			}
 			System.out.println(result);	
 		}
 		
 	}
 	public static void debarkStation(ArrayList<Station> stations, int station,
-			int time, ArrayList<SimpleQueue<Train>> trainTracks, int n) 
+			int time, ArrayList<SimpleQueue<Train>> trainTracks, int n, ArrayList<Train> trains) 
 					throws EmptyPlatformException, FullQueueException, EmptyQueueException
 	{
 		Train departingTrain = stations.get(station).getPlatform().check();
 		int trainIDNumber = departingTrain.getId();
 		departingTrain.getATD().add(time);
-//		System.out.println(departingTrain.getATD().get(station));
+		for (int i = 0; i < trains.size(); i++)
+		{
+			if (trains.get(i).getId() == departingTrain.getId())
+			{
+				trains.get(i).getATD().add(time);
+			}
+		}
 		trainTracks.get(station).enqueue(departingTrain);
 		int stationIDNumber = stations.get(station).getId();
 		stations.get(station).getPlatform().get();
@@ -241,7 +231,8 @@ public class TrainSimulator
 		}
 	}
 	public static void arriveAtStation(ArrayList<Station> stations, int station,
-			int train, int time, ArrayList<SimpleQueue<Train>> trainTracks, int n) 
+			int train, int time, ArrayList<SimpleQueue<Train>> trainTracks,
+			int n, ArrayList<Train> trains) 
 					throws FullQueueException, EmptyQueueException, 
 					FullPlatformException
 	{
@@ -249,6 +240,13 @@ public class TrainSimulator
 			
 		int trainIDNumber = arrivingTrain.getId();
 		arrivingTrain.getATA().add(time);
+		for (int i = 0; i < trains.size(); i++)
+		{
+			if (trains.get(i).getId() == arrivingTrain.getId())
+			{
+				trains.get(i).getATA().add(time);
+			}
+		}
 		stations.get(station).getPlatform().put(arrivingTrain);
 		arrivingTrain.getATA().add(time);
 		int stationIDNumber = stations.get(station).getId();
