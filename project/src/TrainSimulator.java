@@ -4,12 +4,13 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.StringTokenizer;
 
 
 public class TrainSimulator 
 {
 
-	public static void main(String[] args) throws NumberFormatException, IOException, FullPlatformException, EmptyPlatformException, FullQueueException, EmptyQueueException, FullStackException 
+	public static void main(String[] args) throws NumberFormatException, IOException, FullPlatformException, EmptyPlatformException
 	{ 
 
 		if (args.length < 3 || args.length > 3)
@@ -32,15 +33,20 @@ public class TrainSimulator
 					BufferedReader in
 					= new BufferedReader(new FileReader(fileName));
 					String line = in.readLine();
-					//Use string tokenizer
 					while ((line = in.readLine()) != null)
 					{
-						int cutPoint = line.indexOf(",");
-						int stationID = Integer.parseInt
-								(line.substring(0, cutPoint));
-						int stationCap = Integer.parseInt(line.substring(cutPoint + 1));
-						Station newStation = new Station(stationID, stationCap);
-						allStations.add(newStation);
+						StringTokenizer token = new StringTokenizer(line, ",");
+						if (token.countTokens() == 1)
+						{
+							
+						}
+						else
+						{
+							int stationID = Integer.parseInt(token.nextToken());
+							int stationCap = Integer.parseInt(token.nextToken());
+							Station newStation = new Station(stationID, stationCap);
+							allStations.add(newStation);
+						}
 					}
 
 					in.close();
@@ -66,21 +72,19 @@ public class TrainSimulator
 
 					while ((line = in.readLine()) != null)
 					{
-						int cutPoint = line.indexOf(",");
-						int trainID = Integer.parseInt
-								(line.substring(0, cutPoint));
+						StringTokenizer token = new StringTokenizer(line, ",");
+						if (token.countTokens() == 1)
+						{
+							
+						}
+						int trainID = Integer.parseInt(token.nextToken());
 						orderingStack.push(new Train(trainID));
 						trains.add(new Train(trainID));
-						String s = line.substring(cutPoint + 1);
-						while (s.indexOf(",") != -1)
+						while (token.hasMoreTokens())
 						{
-							cutPoint = s.indexOf(",");
-							int trainETD = Integer.parseInt(s.substring(0, cutPoint));
+							int trainETD = Integer.parseInt(token.nextToken());
 							orderingStack.peek().getETD().add(trainETD);
-							s = s.substring(cutPoint + 1);
 						}
-						int trainETD = Integer.parseInt(s);
-						orderingStack.peek().getETD().add(trainETD);
 					}
 
 					while (!orderingStack.isEmpty())
@@ -91,7 +95,7 @@ public class TrainSimulator
 					in.close();
 
 				}
-				catch (FileNotFoundException e)
+				catch (FileNotFoundException | FullStackException e)
 				{
 					System.out.println("File: " + fileName + " Not Found.");
 				}	
@@ -100,40 +104,21 @@ public class TrainSimulator
 		int n = Integer.parseInt(args[0]);
 		while (!allTrainsAreDone(allStations))
 		{
-			//			worldTime++;
-			for (int i = 0; i < allStations.size(); i++)
+			for (int i = 0; i < allStations.size() - 1; i++)
 			{
-				if (!allStations.get(i).getPlatform().isEmpty())
+				while (!allStations.get(i).getPlatform().isEmpty() 
+						&& getTrain(allStations, i).getETD().get(i) <= worldTime)
 				{
-					boolean done = false;
-					while (!done)
+					if (getTrain(allStations, i).getATA().size() > 0)
 					{
-						if (allStations.size() - 1 == i)
+						if (getTrain(allStations, i).getATA().get(i) + 1 <= worldTime)
 						{
-							break;
+							debarkStation(allStations, i, worldTime, trainTracks, n, trains);
 						}
-						if (allStations.get(i).getPlatform().isEmpty())
-						{
-							break;
-						}
-						if (getTrain(allStations, i).getETD().get(i) <= worldTime)
-						{
-							if (getTrain(allStations, i).getATA().size() > 0)
-							{
-								if (getTrain(allStations, i).getATA().get(i) + 1 <= worldTime)
-								{
-									debarkStation(allStations, i, worldTime, trainTracks, n, trains);
-								}
-							}
-							else
-							{
-								debarkStation(allStations, i, worldTime, trainTracks, n, trains);
-							}
-						}
-						else
-						{
-							done = true;
-						}
+					}
+					else
+					{
+						debarkStation(allStations, i, worldTime, trainTracks, n, trains);
 					}
 				}
 			}
@@ -150,21 +135,25 @@ public class TrainSimulator
 						{
 							break;
 						}
-						if (trainTracks.get(j).peek().getATD().size() > j)
-						{
-							if (trainTracks.get(j).peek().getATD().get(j) + 10 <= worldTime)
+						try {
+							if (trainTracks.get(j).peek().getATD().size() > j)
 							{
-								arriveAtStation(allStations, j + 1,
-										j, worldTime, trainTracks, n, trains);
+								if (trainTracks.get(j).peek().getATD().get(j) + 10 <= worldTime)
+								{
+									arriveAtStation(allStations, j + 1,
+											j, worldTime, trainTracks, n, trains);
+								}
+								else
+								{
+									done = true;
+								}
 							}
 							else
 							{
 								done = true;
 							}
-						}
-						else
-						{
-							done = true;
+						} catch (EmptyQueueException e) {
+							System.out.println("Tracks are empty.");
 						}
 					}
 				}
@@ -205,7 +194,7 @@ public class TrainSimulator
 	}
 	public static void debarkStation(List<Station> stations, int station,
 			int time, List<SimpleQueue<Train>> trainTracks, int n, List<Train> trains) 
-					throws EmptyPlatformException, FullQueueException, EmptyQueueException
+					throws EmptyPlatformException
 	{
 		Train departingTrain = stations.get(station).getPlatform().check();
 		int trainIDNumber = departingTrain.getId();
@@ -217,7 +206,11 @@ public class TrainSimulator
 				trains.get(i).getATD().add(time);
 			}
 		}
-		trainTracks.get(station).enqueue(departingTrain);
+		try {
+			trainTracks.get(station).enqueue(departingTrain);
+		} catch (FullQueueException e) {
+			System.out.println("Tracks are full!");
+		}
 		int stationIDNumber = stations.get(station).getId();
 		stations.get(station).getPlatform().get();
 		if (n == 0)
@@ -229,28 +222,33 @@ public class TrainSimulator
 	public static void arriveAtStation(List<Station> stations, int station,
 			int train, int time, List<SimpleQueue<Train>> trainTracks,
 			int n, List<Train> trains) 
-					throws FullQueueException, EmptyQueueException, 
-					FullPlatformException
+					throws FullPlatformException
 	{
-		Train arrivingTrain = trainTracks.get(station-1).dequeue();
-
-		int trainIDNumber = arrivingTrain.getId();
-		arrivingTrain.getATA().add(time);
-		for (int i = 0; i < trains.size(); i++)
+		Train arrivingTrain;
+		try 
 		{
-			if (trains.get(i).getId() == arrivingTrain.getId())
+			arrivingTrain = trainTracks.get(station-1).dequeue();
+			int trainIDNumber = arrivingTrain.getId();
+			arrivingTrain.getATA().add(time);
+			for (int i = 0; i < trains.size(); i++)
 			{
-				trains.get(i).getATA().add(time);
+				if (trains.get(i).getId() == arrivingTrain.getId())
+				{
+					trains.get(i).getATA().add(time);
+				}
 			}
+			stations.get(station).getPlatform().put(arrivingTrain);
+			arrivingTrain.getATA().add(time);
+			int stationIDNumber = stations.get(station).getId();
+			if (n == 0)
+			{
+				System.out.println(time + ":	Train " + trainIDNumber + 
+						" has been parked at station " + stationIDNumber + ".");
+			}
+		} catch (EmptyQueueException e) {
+			System.out.println("Tracks are empty");
 		}
-		stations.get(station).getPlatform().put(arrivingTrain);
-		arrivingTrain.getATA().add(time);
-		int stationIDNumber = stations.get(station).getId();
-		if (n == 0)
-		{
-			System.out.println(time + ":	Train " + trainIDNumber + 
-					" has been parked at station " + stationIDNumber + ".");
-		}
+
 	}
 	public static boolean allTrainsAreDone(List<Station> stations)
 	{
