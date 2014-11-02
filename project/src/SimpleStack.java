@@ -131,6 +131,5 @@ public class SimpleStack<E> implements StackADT<E>
 			return true;
 		}
 		return false;
-	}
-	
+	}	
 }
